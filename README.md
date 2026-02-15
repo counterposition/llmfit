@@ -23,6 +23,20 @@ Example of a medium performance home laptop
 
 ## Install
 
+### Homebrew (macOS / Linux)
+
+```sh
+brew tap AlexsJones/llmfit
+brew install llmfit
+```
+
+### Quick install
+
+```sh
+curl -fsSL https://llmfit.axjns.dev/install.sh | sh
+```
+
+Downloads the latest release binary from GitHub and installs it to `/usr/local/bin` (or `~/.local/bin`).
 
 ### From source
 
