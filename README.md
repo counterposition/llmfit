@@ -10,6 +10,14 @@ Ships with an interactive TUI (default) and a classic CLI mode.
 
 ## Install
 
+### Quick install
+
+```sh
+curl -fsSL https://llmfit.axjns.dev | sh
+```
+
+Downloads the latest release binary from GitHub and installs it to `/usr/local/bin` (or `~/.local/bin`).
+
 ### From crates.io
 
 ```sh
@@ -19,7 +27,7 @@ cargo install llmfit
 ### From source
 
 ```sh
-git clone https://github.com/axjns/llmfit.git
+git clone https://github.com/AlexsJones/llmfit.git
 cd llmfit
 cargo build --release
 # binary is at target/release/llmfit
@@ -90,9 +98,9 @@ llmfit info "Mistral-7B"
    - **CPU** -- No GPU detected. Model loaded entirely into system RAM. Slow.
 
    **Fit levels:**
-   - **Perfect** -- Recommended memory met on GPU (VRAM).
-   - **Good** -- Minimum VRAM met (tight), or model fits in system RAM on CPU with headroom.
-   - **Marginal** -- CPU-only, barely fits in system RAM.
+   - **Perfect** -- Recommended memory met on GPU (VRAM). Requires GPU acceleration.
+   - **Good** -- Fits with headroom. Best achievable for CPU+GPU offload.
+   - **Marginal** -- Tight fit, or CPU-only (CPU-only always caps here).
    - **Too Tight** -- Not enough VRAM or system RAM anywhere.
 
 ---
@@ -185,8 +193,9 @@ cargo publish
 
 ## Platform support
 
-- **Linux** -- Full support. GPU detection via `nvidia-smi` and `rocm-smi`.
-- **macOS** -- RAM and CPU detection works. GPU detection limited (no `nvidia-smi`).
+- **Linux** -- Full support. GPU detection via `nvidia-smi` (NVIDIA) and `rocm-smi` (AMD).
+- **macOS (Apple Silicon)** -- Full support. Detects unified memory via `system_profiler`. VRAM = system RAM (shared pool). Models run via Metal GPU acceleration.
+- **macOS (Intel)** -- RAM and CPU detection works. Discrete GPU detection if `nvidia-smi` available.
 - **Windows** -- RAM and CPU detection works. NVIDIA GPU detection via `nvidia-smi` if installed.
 
 ---
