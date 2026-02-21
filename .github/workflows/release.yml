@@ -123,10 +123,21 @@ jobs:
         shell: bash
         run: |
           TAG="${GITHUB_REF_NAME}"
-          DMG=$(find target/${{ matrix.target }}/release/bundle/dmg -name '*.dmg' | head -1)
+          # Tauri outputs bundles under the workspace target dir
+          BUNDLE_DIR="target/${{ matrix.target }}/release/bundle"
+          # Also check if bundle ended up under llmfit-desktop/
+          if [ ! -d "$BUNDLE_DIR" ]; then
+            BUNDLE_DIR="llmfit-desktop/target/${{ matrix.target }}/release/bundle"
+          fi
+          DMG=$(find "$BUNDLE_DIR" -name '*.dmg' 2>/dev/null | head -1)
           if [ -z "$DMG" ]; then
             echo "No DMG found, checking for .app bundle..."
-            APP=$(find target/${{ matrix.target }}/release/bundle/macos -name '*.app' | head -1)
+            APP=$(find "$BUNDLE_DIR" -name '*.app' 2>/dev/null | head -1)
+            if [ -z "$APP" ]; then
+              echo "::error::No .dmg or .app bundle found under $BUNDLE_DIR"
+              find target/ llmfit-desktop/target/ -type f -name '*.dmg' -o -name '*.app' 2>/dev/null || true
+              exit 1
+            fi
             cd "$(dirname "$APP")"
             tar czf "/tmp/llmfit-desktop-${TAG}-${{ matrix.target }}.app.tar.gz" "$(basename "$APP")"
             echo "DESKTOP_ASSET=llmfit-desktop-${TAG}-${{ matrix.target }}.app.tar.gz" >> "$GITHUB_ENV"
