@@ -176,7 +176,7 @@ impl App {
             pull_percent: None,
             pull_model_name: None,
             tick_count: 0,
-            theme: Theme::Default,
+            theme: Theme::load(),
         };
 
         app.apply_filters();
@@ -288,6 +288,7 @@ impl App {
 
     pub fn cycle_theme(&mut self) {
         self.theme = self.theme.next();
+        self.theme.save();
     }
 
     pub fn enter_search(&mut self) {

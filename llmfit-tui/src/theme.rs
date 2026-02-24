@@ -1,4 +1,6 @@
 use ratatui::style::Color;
+use std::fs;
+use std::path::PathBuf;
 
 /// Available color themes for the TUI.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -42,6 +44,43 @@ impl Theme {
             Theme::Nord => nord_colors(),
             Theme::Monokai => monokai_colors(),
             Theme::Gruvbox => gruvbox_colors(),
+        }
+    }
+
+    /// Path to the config file: ~/.config/llmfit/theme
+    fn config_path() -> Option<PathBuf> {
+        let home = std::env::var("HOME")
+            .or_else(|_| std::env::var("USERPROFILE"))
+            .ok()?;
+        Some(PathBuf::from(home).join(".config").join("llmfit").join("theme"))
+    }
+
+    /// Save the current theme to disk.
+    pub fn save(&self) {
+        if let Some(path) = Self::config_path() {
+            if let Some(parent) = path.parent() {
+                let _ = fs::create_dir_all(parent);
+            }
+            let _ = fs::write(&path, self.label());
+        }
+    }
+
+    /// Load the saved theme from disk, falling back to Default.
+    pub fn load() -> Self {
+        Self::config_path()
+            .and_then(|path| fs::read_to_string(path).ok())
+            .map(|s| Self::from_label(s.trim()))
+            .unwrap_or(Theme::Default)
+    }
+
+    fn from_label(s: &str) -> Self {
+        match s {
+            "Dracula" => Theme::Dracula,
+            "Solarized" => Theme::Solarized,
+            "Nord" => Theme::Nord,
+            "Monokai" => Theme::Monokai,
+            "Gruvbox" => Theme::Gruvbox,
+            _ => Theme::Default,
         }
     }
 }
